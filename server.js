@@ -1,11 +1,19 @@
-const express = require("express");
+import express from "express";
+import { PORT } from "./src/config.js";
+
+import products from "./src/routes/products.js";
+
 const app = express();
-const port = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/products", products);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`);
 });
