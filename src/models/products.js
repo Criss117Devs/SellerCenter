@@ -1,55 +1,45 @@
-import mysql from "mysql2/promise";
-import { MYSQL } from "../config.js";
+import { handleConnection } from "../utils/handleConnection.js";
+import { handleDataOrder } from "../utils/productHelpers.js";
 
-const handleConnection = async () => {
-  const connection = await mysql.createConnection(MYSQL);
-  return connection;
+const productsTable = "products";
+
+const types = {
+  GET_ALL: { script: `SELECT * FROM ${productsTable}`, dataOrder: undefined },
+  FIND: {
+    script: `SELECT * FROM ${productsTable} WHERE id = ?`,
+    dataOrder: ["id"],
+  },
+  CREATE: {
+    script: `INSERT INTO ${productsTable} (id, name, quantity) VALUES (?, ?, ?)`,
+    dataOrder: ["id", "name", "quantity"],
+  },
+  UPDATE: {
+    script: `UPDATE ${productsTable} SET name = ?, quantity = ? WHERE id = ?`,
+    dataOrder: ["name", "quantity", "id"],
+  },
+  DELETE: {
+    script: `DELETE FROM ${productsTable} WHERE id = ?`,
+    dataOrder: ["id"],
+  },
 };
 
-// class Products {
-//   constructor() {
-//     this.connection = mysql.createPool(MYSQL);
-//   }
-
-//   async getAll() {
-//     const [rows, fields] = await this.connection.query(
-//       "SELECT * FROM products"
-//     );
-//     return rows;
-//   }
-
-//   async create({ id, name, quantity }) {
-//     try {
-//       const [rows, fields] = await this.connection.query(
-//         "INSERT INTO products (id, name, quantity) VALUES (?, ?, ?)",
-//         [id, name, quantity]
-//       );
-//       return rows;
-//     } catch (err) {
-//       return { error: err };
-//     }
-//   }
-// }
-
-const getAll = async () => {
-  const connection = await handleConnection();
-  const [rows, fields] = await connection.query("SELECT * FROM products");
-  connection.end();
-  return rows;
-};
-
-const create = async ({ id, name, quantity }) => {
-  const connection = await handleConnection();
-  try {
-    const [rows, fields] = await connection.query(
-      "INSERT INTO products (id, name, quantity) VALUES (?, ?, ?)",
-      [id, name, quantity]
-    );
+export default {
+  query: async ({ type, data = {} }) => {
+    const connection = await handleConnection();
+    let response;
+    try {
+      const [rows, _] = await connection.query(
+        type.script,
+        type.dataOrder ? handleDataOrder(type.dataOrder, data) : undefined
+      );
+      response = rows;
+    } catch (err) {
+      response = { error: err };
+    }
     connection.end();
-    return rows;
-  } catch (err) {
-    return { error: err };
-  }
+    return response;
+  },
+  types: {
+    ...types,
+  },
 };
-
-export default { getAll, create };
