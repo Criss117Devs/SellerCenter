@@ -3,6 +3,7 @@ import Products from "../models/products.js";
 const getAll = async (req, res, next) => {
   const products = await Products.query({ type: Products.types.GET_ALL });
   if (products.length > 0) {
+    // console.log(products);
     res.json(products);
   } else {
     res.status(404).json({ message: "No products found" });
