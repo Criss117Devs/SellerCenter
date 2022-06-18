@@ -1,7 +1,11 @@
 import Products from "../models/products.js";
 
 const getAll = async (req, res, next) => {
-  const products = await Products.query({ type: Products.types.GET_ALL });
+  const { id: userId } = req.user;
+  const products = await Products.query({
+    type: Products.types.GET_ALL,
+    data: { userId },
+  });
   if (products.length > 0) {
     // console.log(products);
     res.json(products);
@@ -13,9 +17,10 @@ const getAll = async (req, res, next) => {
 
 const find = async (req, res, next) => {
   const { id } = req.params;
+  const { id: userId } = req.user;
   const product = await Products.query({
     type: Products.types.FIND,
-    data: { id },
+    data: { id, userId },
   });
   if (product.length > 0) {
     res.json(product[0]);
@@ -27,9 +32,10 @@ const find = async (req, res, next) => {
 
 const create = async (req, res, next) => {
   const { id, name, quantity } = req.body;
+  const { id: userId } = req.user;
   const product = await Products.query({
     type: Products.types.CREATE,
-    data: { id, name, quantity },
+    data: { id, name, quantity, userId },
   });
   if (!product.error && product.affectedRows > 0) {
     res.json({ message: "Product created successfully" });
@@ -43,10 +49,11 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const { name, quantity } = req.body;
+  const { id: userId } = req.user;
   const { id } = req.params;
   const product = await Products.query({
     type: Products.types.UPDATE,
-    data: { id, name, quantity },
+    data: { id, name, quantity, userId },
   });
   if (!product.error && product.affectedRows > 0) {
     res.json({ message: "Product updated successfully" });
@@ -60,9 +67,10 @@ const update = async (req, res, next) => {
 
 const deleteProduct = async (req, res, next) => {
   const { id } = req.params;
+  const { id: userId } = req.user;
   const product = await Products.query({
     type: Products.types.DELETE,
-    data: { id },
+    data: { id, userId },
   });
   if (!product.error && product.affectedRows > 0) {
     res.status(204).send();

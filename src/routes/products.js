@@ -6,13 +6,14 @@ import {
   update,
   deleteProduct,
 } from "../controllers/products.js";
+import { verifyToken } from "../utils/oAuth.js";
 
 const router = Router();
 
-router.get("/", getAll);
-router.get("/:id", find);
-router.post("/create", create);
-router.put("/update/:id", update);
-router.delete("/delete/:id", deleteProduct);
+router.get("/", verifyToken, getAll);
+router.get("/:id", verifyToken, find);
+router.post("/create", verifyToken, create);
+router.put("/update/:id", verifyToken, update);
+router.delete("/delete/:id", verifyToken, deleteProduct);
 
 export default router;

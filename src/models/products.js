@@ -1,25 +1,28 @@
 import { handleConnection } from "../utils/handleConnection.js";
-import { handleDataOrder } from "../utils/productHelpers.js";
+import { handleDataOrder } from "../utils/queries.js";
 
 const productsTable = "products";
 
 const types = {
-  GET_ALL: { script: `SELECT * FROM ${productsTable}`, dataOrder: undefined },
+  GET_ALL: {
+    script: `SELECT * FROM ${productsTable} WHERE userId = ?`,
+    dataOrder: ["userId"],
+  },
   FIND: {
-    script: `SELECT * FROM ${productsTable} WHERE id = ?`,
-    dataOrder: ["id"],
+    script: `SELECT * FROM ${productsTable} WHERE id = ? AND userId = ?`,
+    dataOrder: ["id", "userId"],
   },
   CREATE: {
-    script: `INSERT INTO ${productsTable} (id, name, quantity) VALUES (?, ?, ?)`,
-    dataOrder: ["id", "name", "quantity"],
+    script: `INSERT INTO ${productsTable} (id, name, quantity, userId) VALUES (?, ?, ?, ?)`,
+    dataOrder: ["id", "name", "quantity", "userId"],
   },
   UPDATE: {
-    script: `UPDATE ${productsTable} SET name = ?, quantity = ? WHERE id = ?`,
-    dataOrder: ["name", "quantity", "id"],
+    script: `UPDATE ${productsTable} SET name = ?, quantity = ? WHERE id = ? AND userId = ?`,
+    dataOrder: ["name", "quantity", "id", "userId"],
   },
   DELETE: {
-    script: `DELETE FROM ${productsTable} WHERE id = ?`,
-    dataOrder: ["id"],
+    script: `DELETE FROM ${productsTable} WHERE id = ? AND userId = ?`,
+    dataOrder: ["id", "userId"],
   },
 };
 

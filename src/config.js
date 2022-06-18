@@ -10,4 +10,7 @@ const PORT = process.env.PORT || 3000;
 const MYSQL =
   "mysql://root:VOVZDBpeFU0TV5iP0hgN@containers-us-west-60.railway.app:6286/railway";
 
-export { PORT, MYSQL };
+const JWT_SECRET = process.env.JWT_SECRET || "s0m3R@nd0mS3cr3t";
+const SALT_ROUNDS = process.env.SALT_ROUNDS || 10;
+
+export { PORT, MYSQL, JWT_SECRET, SALT_ROUNDS };
