@@ -1,5 +1,7 @@
 import { validationResult } from "express-validator";
 import Users from "../models/users.js";
+import fetch from "node-fetch";
+import axios from 'axios';
 
 const validateFields = (req, res, next) => {
   const errors = validationResult(req);
@@ -32,23 +34,44 @@ const validEmptyFields = async (req, res, next) => {
   for (const property in objectUSer) {
     switch (property) {
       case "firstName":
-        if (isEmptyProperty(objectUSer[property])) errors.push({ msj: `Propiedad ${property} esta definidad, pero su valor es vacio` });
+        if (isEmptyProperty(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} esta definidad, pero su valor es vacio`,
+          });
         break;
       case "lastName":
-        if (isEmptyProperty(objectUSer[property])) errors.push({ msj: `Propiedad ${property} esta definidad, pero su valor es vacio` });
+        if (isEmptyProperty(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} esta definidad, pero su valor es vacio`,
+          });
         break;
       case "email":
-        if (isEmptyProperty(objectUSer[property])) errors.push({ msj: `Propiedad ${property} esta definidad, pero su valor es vacio` });
-        if (!isEmailValid(objectUSer[property])) errors.push({ msj: `Propiedad ${property} no es un campo de tipo correo` });
+        if (isEmptyProperty(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} esta definidad, pero su valor es vacio`,
+          });
+        if (!isEmailValid(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} no es un campo de tipo correo`,
+          });
         break;
       case "status":
-        if (isEmptyProperty(objectUSer[property])) errors.push({ msj: `Propiedad ${property} esta definidad, pero su valor es vacio` });
+        if (isEmptyProperty(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} esta definidad, pero su valor es vacio`,
+          });
         break;
       case "role":
-        if (isEmptyProperty(objectUSer[property])) errors.push({ msj: `Propiedad ${property} esta definidad, pero su valor es vacio` });
+        if (isEmptyProperty(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} esta definidad, pero su valor es vacio`,
+          });
         break;
       case "idUSer":
-        if (isEmptyProperty(objectUSer[property])) errors.push({ msj: `Propiedad ${property} esta definidad, pero su valor es vacio` });
+        if (isEmptyProperty(objectUSer[property]))
+          errors.push({
+            msj: `Propiedad ${property} esta definidad, pero su valor es vacio`,
+          });
         break;
       default:
         errors.push({ msj: `Propiedad ${property} no definidad` });
@@ -64,14 +87,44 @@ const validEmptyFields = async (req, res, next) => {
   next();
 };
 
+const isAdminUser = async () => {
+    
+    var data = JSON.stringify({
+      "allocation": {
+        "amount": 300
+      }
+    });
+    
+    var config = {
+      method: 'get',
+      url: 'https://bjqc-002.sandbox.us01.dx.commercecloud.salesforce.com/s/Sites-Site/dw/data/v20_9/custom_objects/SellerCenterAdmins/cristian.gutierrez@puntocommerce.com',
+      headers: { 
+        'x-dw-client-id': '{{clientid}}', 
+        'Authorization': 'Bearer 9fYZip6WZ6EAHI3Qj-BnfGusbqQ', 
+        'Origin': '{{origin_url}}', 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+    
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    
+};
+
 const isEmptyProperty = (property) => {
   if (property === "") return true;
   return false;
 };
 
 const isEmailValid = (email = "") => {
-    let regex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-    return regex.test(email) ? true : false;
-} 
+  let regex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+  return regex.test(email) ? true : false;
+};
 
-export { validateFields, isUserRole, validEmptyFields };
+export { validateFields, isUserRole, validEmptyFields, isAdminUser };

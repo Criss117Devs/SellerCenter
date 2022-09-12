@@ -14,6 +14,7 @@ import {
     validateFields,
     isUserRole,
     validEmptyFields,
+    isAdminUser,
 } from "../middlewares/validateFields.js";
 
 const router = Router();
@@ -37,6 +38,7 @@ router.post("/signUp",[
 router.post("/signin", signIn);
 
 router.put("/updateUser/:id",[
+    isAdminUser,
     check("id").custom(isIdMYSQL), 
     check("role").custom(isRoleValid),
     isUserRole,
