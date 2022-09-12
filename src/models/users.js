@@ -13,14 +13,24 @@ const types = {
     script: `SELECT * FROM ${usersTable} WHERE id = ?`,
     dataOrder: ["id"],
   },
-  CREATE: {
-    script: `INSERT INTO ${usersTable} (firstName, lastName, email, password) VALUES (?, ?, ?, ?)`,
-    dataOrder: ["firstName", "lastName", "email", "password"],
+  FINDBYEMAIL: {
+    script: `SELECT * FROM ${usersTable} WHERE email = ?`,
+    dataOrder: ["email"],
   },
-  UPDATE: {
+  CREATE: {//
+    script: `INSERT INTO ${usersTable} (firstName, lastName, password, email, status, role) VALUES (?, ?, ?, ?, ?, ?)`,
+    dataOrder: ["firstName", "lastName", "password", "email", "status", "role"],
+  },
+  /*UPDATE: {
     script: `UPDATE ${usersTable} SET firstName = ?, lastName = ?, email = ?, password = ? WHERE id = ?`,
     dataOrder: ["firstName", "lastName", "email", "password", "id"],
+  },*/
+  
+  UPDATE: {
+    script: `UPDATE ${usersTable} SET firstName = ?, lastName = ?, email = ?, status = ?, role = ? WHERE id = ?`,
+    dataOrder: ["firstName", "lastName", "email", "status", "role", "id"],
   },
+  
   DELETE: {
     script: `DELETE FROM ${usersTable} WHERE id = ?`,
     dataOrder: ["id"],

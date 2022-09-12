@@ -1,7 +1,7 @@
 import express from "express";
 import { PORT } from "./src/config.js";
 
-import products from "./src/routes/products.js";
+//import products from "./src/routes/products.js";
 import users from "./src/routes/users.js";
 
 const app = express();
@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 // app.use(express.urlencoded({ extended: true }));
 
-app.use("/products", products);
+//app.use("/products", products);
 app.use("/users", users);
 
 app.get("/", (req, res) => {

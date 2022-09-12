@@ -4,21 +4,23 @@ import bcrypt from "bcrypt";
 import { SALT_ROUNDS } from "../config.js";
 
 const signUp = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { id, firstName, lastName, password, email, status, role } = req.body;
 
-  // const hash =  bcrypt.hashSync(password, SALT_ROUNDS);
-  const hash = await bcrypt.hash(password, SALT_ROUNDS);
-  console.log(hash);
-  const user = await Users.query({
-    type: Users.types.CREATE,
-    data: { firstName, lastName, email, password: hash },
-  });
-
-  if (user.error) {
-    return res.status(400).json({ message: user.error });
-  }
-  res.status(201).json({ message: "Usuario creado" });
-  next();
+    try {
+      const hash = await bcrypt.hash(password, SALT_ROUNDS);
+      const user = await Users.query({
+        type: Users.types.CREATE,
+        data: { id, firstName, lastName, password: hash, email, status, role },
+      });
+     
+      if (user.error) {
+        return res.status(400).json({ message: user.error });
+      }
+      res.status(201).json({ message: "Usuario creado" });
+      next();
+    } catch (err) {
+      next(err)
+    }
 };
 
 const signIn = async (req, res, next) => {
@@ -48,4 +50,30 @@ const signIn = async (req, res, next) => {
   next();
 };
 
-export { signUp, signIn };
+const updateUser = async(req, res, next) => {
+  try {
+    const { id } = req.params;
+   // console.log(id);
+    const { /*firstName, lastName, email, status, role*/...rest } = req.body;
+    console.log(rest);
+    const user = await Users.query({
+      type: Users.types.UPDATE,
+      data: { rest },
+    });
+   
+    if (user.error) {
+      return res.status(400).json({ message: user.error });
+    }
+    res.status(201).json({ message: "Usuario update" });
+    next();
+
+  } catch (error) {
+    return res.status(400).json({ message: error });
+  }
+}
+
+export {
+  signUp,
+  signIn,
+  updateUser
+};
