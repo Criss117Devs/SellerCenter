@@ -17,18 +17,13 @@ const types = {
     script: `SELECT * FROM ${usersTable} WHERE email = ?`,
     dataOrder: ["email"],
   },
-  CREATE: {//
-    script: `INSERT INTO ${usersTable} (firstName, lastName, password, email, status, role) VALUES (?, ?, ?, ?, ?, ?)`,
-    dataOrder: ["firstName", "lastName", "password", "email", "status", "role"],
+  CREATE: {
+    script: `INSERT INTO ${usersTable} (key_value_string, c_firstName, c_lastName, c_password, c_status) VALUES (?, ?, ?, ?, ?)`,
+    dataOrder: ["key_value_string", "c_firstName", "c_lastName", "c_password", "c_status"],
   },
-  /*UPDATE: {
-    script: `UPDATE ${usersTable} SET firstName = ?, lastName = ?, email = ?, password = ? WHERE id = ?`,
-    dataOrder: ["firstName", "lastName", "email", "password", "id"],
-  },*/
-  
   UPDATE: {
-    script: `UPDATE ${usersTable} SET firstName = ?, lastName = ?, email = ?, status = ?, role = ? WHERE id = ?`,
-    dataOrder: ["firstName", "lastName", "email", "status", "role", "id"],
+    script: `UPDATE ${usersTable} SET c_firstName = ?, c_lastName = ?, c_password = ?, c_status = ? WHERE id = 1`,
+    dataOrder: ["c_firstName", "c_lastName", "c_password", "c_status", "id"],
   },
   
   DELETE: {

@@ -78,7 +78,7 @@ const validEmptyFields = async (req, res, next) => {
         break;
     }
   }
-  console.log(errors);
+  
   if (errors.length > 0) {
     return res.status(400).json({
       mesj: errors,
@@ -87,8 +87,8 @@ const validEmptyFields = async (req, res, next) => {
   next();
 };
 
-const isAdminUser = async () => {
-    
+const isAdminUser = async (req, res, next) => {
+    const { id } = req.params;
     var data = JSON.stringify({
       "allocation": {
         "amount": 300
@@ -100,22 +100,35 @@ const isAdminUser = async () => {
       url: 'https://bjqc-002.sandbox.us01.dx.commercecloud.salesforce.com/s/Sites-Site/dw/data/v20_9/custom_objects/SellerCenterAdmins/cristian.gutierrez@puntocommerce.com',
       headers: { 
         'x-dw-client-id': '{{clientid}}', 
-        'Authorization': 'Bearer 9fYZip6WZ6EAHI3Qj-BnfGusbqQ', 
+        'Authorization': 'Bearer jcvDE6EABMUBbX7Gyb586NMrRos', 
         'Origin': '{{origin_url}}', 
         'Content-Type': 'application/json'
       },
       data : data
     };
     
-    axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error) {
-      console.log(error);
+    const a = await axios(config);
+    const user = await Users.query({
+        type: Users.types.FIND,
+        data: { id },
     });
     
+    
+    if (isAdminRole(a.data.key_value_string, user[0].key_value_string)) {
+        next();
+    } else {
+        return res.status(400).json({
+            mesj: "No cuentas con permisos para actualizar este usuario.",
+        });
+    }
+
+    
 };
+
+const isAdminRole = (emailUSer, email) => {
+    if(emailUSer === email) return true;
+    return false;
+}
 
 const isEmptyProperty = (property) => {
   if (property === "") return true;

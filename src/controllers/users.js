@@ -4,13 +4,13 @@ import bcrypt from "bcrypt";
 import { SALT_ROUNDS } from "../config.js";
 
 const signUp = async (req, res, next) => {
-  const { id, firstName, lastName, password, email, status, role } = req.body;
+  const { id, key_value_string, c_firstName, c_lastName, c_password, c_status } = req.body;
 
     try {
-      const hash = await bcrypt.hash(password, SALT_ROUNDS);
+      const hash = await bcrypt.hash(c_password, SALT_ROUNDS);
       const user = await Users.query({
         type: Users.types.CREATE,
-        data: { id, firstName, lastName, password: hash, email, status, role },
+        data: { id, key_value_string, c_firstName, c_lastName, c_password: hash, c_status },
       });
      
       if (user.error) {
@@ -53,19 +53,20 @@ const signIn = async (req, res, next) => {
 const updateUser = async(req, res, next) => {
   try {
     const { id } = req.params;
-   // console.log(id);
-    const { /*firstName, lastName, email, status, role*/...rest } = req.body;
-    console.log(rest);
+    const { c_firstName, c_lastName, c_password, c_status  } = req.body;
+   
+    //rest.id = req.params.id;
+    //console.log(rest);
     const user = await Users.query({
       type: Users.types.UPDATE,
-      data: { rest },
+      data: { c_firstName, c_lastName, c_password, c_status, id },
     });
    
     if (user.error) {
       return res.status(400).json({ message: user.error });
     }
     res.status(201).json({ message: "Usuario update" });
-    next();
+    //next();
 
   } catch (error) {
     return res.status(400).json({ message: error });

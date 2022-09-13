@@ -20,7 +20,7 @@ import {
 const router = Router();
 
 router.post("/signUp",[
-    check("firstName", "El username esta vacio").not().isEmpty().trim(),
+    /*check("firstName", "El username esta vacio").not().isEmpty().trim(),
     check("lastName", "El lastname esta vacio").not().isEmpty().trim(),
     check("password", "El password debe tener almenos 10 caracteres").isLength({min: 10}),
     check("password", "El password esta vacio").not().isEmpty().trim(),
@@ -29,21 +29,21 @@ router.post("/signUp",[
     check("email", "El email esta vacio").not().isEmpty().trim(),
     check("status", "El status esta vacio").not().isEmpty().trim(),
     check("role", "El rol  esta vacio").not().isEmpty().trim(),
-    check("role").custom(isRoleValid), 
+    check("role").custom(isRoleValid), */
     //check("role").custom((role) => isRoleValid(role)), 
     //check("rol", "No es un rol valida").isIn(["ADMIN_ROLE", "USER_ROLE"]),
-    validateFields
+    //validateFields
 ], signUp);
 
 router.post("/signin", signIn);
 
 router.put("/updateUser/:id",[
     isAdminUser,
-    check("id").custom(isIdMYSQL), 
+    /*check("id").custom(isIdMYSQL), 
     check("role").custom(isRoleValid),
     isUserRole,
     validEmptyFields,
-    validateFields
+    validateFields*/
 ],updateUser);
 
 
