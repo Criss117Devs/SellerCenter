@@ -5,7 +5,7 @@ import {
     signUp,
     updateUser
 } from "../controllers/users.js";
-import { existUserSalesforce } from "../helpers/dbValidations.js";
+import { existUserSalesforce, findByCredentials, findUSerInSalesforce } from "../helpers/dbValidations.js";
 import { validateFields } from "../middlewares/validateFields.js";
 
 const router = Router();
@@ -13,15 +13,15 @@ const router = Router();
 router.post("/signUp", [
     check("key_value_string", "El email esta vacio").not().isEmpty().trim(),
     check("key_value_string", "El email no es valido").isEmail(),
-    /*
-        check("c_firstName", "El username esta vacio").not().isEmpty().trim(),
-        check("c_lastName", "El lastname esta vacio").not().isEmpty().trim(),
-        check("c_password", "El password debe tener almenos 10 caracteres").isLength({min: 10}),
-        check("c_password", "El password esta vacio").not().isEmpty().trim(),
-
-        check("c_status", "El status esta vacio").not().isEmpty().trim(),
-        check("c_status", "El status tiene que ser active").equals("active"),
-        validateFields*/
+    check("c_firstName", "El username esta vacio").not().isEmpty().trim(),
+    check("c_lastName", "El lastname esta vacio").not().isEmpty().trim(),
+    check("c_password", "El password debe tener almenos 10 caracteres").isLength({min: 10}),
+    check("c_password", "El password esta vacio").not().isEmpty().trim(),
+    check("c_status", "El status esta vacio").not().isEmpty().trim(),
+    check("c_status", "El status tiene que ser active").equals("active"),
+    findUSerInSalesforce,
+    findByCredentials,
+    validateFields
 ], signUp);
 
 router.post("/signin", [
