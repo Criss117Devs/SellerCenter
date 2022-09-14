@@ -26,7 +26,7 @@ const existUserSalesforce = async (req, res, next) => {
     try {
         const resp = await axios(config);
         res.status(200).json({
-            message: "Usuario logueado como admin",
+            message: "Usuario logueado como administrador.",
             data: resp.data
         });
     } catch (error) {
@@ -40,7 +40,7 @@ const findUSerInSalesforce = async(req, res, next) => {
         c_firstName,
         c_password
     } = req.body;
-    console.log(c_firstName, c_password);
+   
     try {
         var data = qs.stringify({
             'grant_type': 'client_credentials'
@@ -56,14 +56,29 @@ const findUSerInSalesforce = async(req, res, next) => {
         };
         try {
             const resp = await axios(config);
-            res.status(200).json({
-                message: "El usuario ya se encuentra registrado como admnistrador",
+            return  res.status(200).json({
+                message: "El usuario ya se encuentra logueado como administrador.",
             });
         } catch (error) {
-            next();
+
+            if(error.code === "ENOTFOUND") {
+                return  res.status(200).json({
+                    message: "Ocurrió un error con el servidor",
+                });
+            } else if(error.code === "ENOTFOUND") {
+                return  res.status(200).json({
+                    message: "Ocurrió un error con el servidor",
+                });
+            } else {
+                console.log("Llego al next");
+                next();
+            }
         }
     } catch (error) {
+        console.log("2");
+        console.log(error.code);
         console.log(error);
+        next();
     }
 }
 
@@ -81,14 +96,15 @@ const findByCredentials = async(req, res, next) => {
             },
         });
         if(user.length > 0) {
-            res.status(200).json({
-                message: "El usuario ya se encuentra registrado",
+            return res.status(200).json({
+                message: "El campo usuario o el campo key_value_string ya se encuentra registrado",
             });
         } else {
             next();
         }
     } catch (error) {
-        console.log(error);
+        console.log("3");
+        console.log(error.code);
         next();
     }
 }

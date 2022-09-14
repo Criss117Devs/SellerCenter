@@ -1,9 +1,9 @@
 import { JWT_SECRET } from "../config.js";
 import jwt from "jsonwebtoken";
 
-const createToken = (user) => {
+const createToken = (id) => {
   const payload = {
-    id: user.id,
+    id
   };
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 };

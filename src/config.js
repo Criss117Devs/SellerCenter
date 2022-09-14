@@ -6,10 +6,7 @@ const MYSQL = {
   password: process.env.MYSQL_PASSWORD || "root",
   database: process.env.MYSQL_DATABASE || "sellercenter",
 };
-/*
-const MYSQL =
-  "mysql://root:VOVZDBpeFU0TV5iP0hgN@containers-us-west-60.railway.app:6286/railway";
-*/
+
 const JWT_SECRET = process.env.JWT_SECRET || "tokenDepruebas";
 const SALT_ROUNDS = process.env.SALT_ROUNDS || 10;
 
