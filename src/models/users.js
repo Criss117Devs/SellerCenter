@@ -6,8 +6,8 @@ const usersTable = "users";
 const types = {
   GET_ALL: { script: `SELECT * FROM ${usersTable}`, dataOrder: undefined },
   SING_IN: {
-    script: `SELECT * FROM ${usersTable} WHERE email = ?`,
-    dataOrder: ["email"],
+    script: `SELECT * FROM ${usersTable} WHERE c_firstName = ? `,
+    dataOrder: ["c_firstName"],
   },
   FIND: {
     script: `SELECT * FROM ${usersTable} WHERE id = ?`,
@@ -16,6 +16,10 @@ const types = {
   FINDBYEMAIL: {
     script: `SELECT * FROM ${usersTable} WHERE email = ?`,
     dataOrder: ["email"],
+  },
+  FINDBYCREDENTIALS: {
+    script: `SELECT * FROM ${usersTable} WHERE key_value_string = ? OR c_firstName = ?`,
+    dataOrder: ["key_value_string", "c_firstName"],
   },
   CREATE: {
     script: `INSERT INTO ${usersTable} (key_value_string, c_firstName, c_lastName, c_password, c_status) VALUES (?, ?, ?, ?, ?)`,

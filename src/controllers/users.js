@@ -24,30 +24,43 @@ const signUp = async (req, res, next) => {
 };
 
 const signIn = async (req, res, next) => {
-  const { email, password } = req.body;
-  const user = await Users.query({
+  const {
+    c_firstName,
+    c_password
+} = req.body;
+const user = await Users.query({
     type: Users.types.SING_IN,
-    data: { email },
-  });
+    data: {
+        c_firstName
+    },
+});
 
-  if (user.error || !user.length) {
+if (user.error || !user.length) {
     return res
-      .status(401)
-      .json({ message: "Usuario o contraseña incorrectos" });
-  }
+        .status(401)
+        .json({
+            message: "Usuario o contraseña incorrectos"
+        });
+}
 
-  const isValid = await bcrypt.compare(password, user[0].password);
+const isValid = await bcrypt.compare(c_password, user[0].c_password);
 
-  if (!isValid) {
+if (!isValid) {
     return res
-      .status(401)
-      .json({ message: "Usuario o contraseña incorrectos" });
-  }
+        .status(401)
+        .json({
+            message: "Usuario o contraseña incorrectos"
+        });
+}
 
-  const token = createToken(user[0]);
-  res.status(200).json({ token, ...user[0] });
+const token = createToken(user[0]);
+res.status(200).json({
+    token,
+    ...user[0],
+    "type": "Basico"
+});
 
-  next();
+next();
 };
 
 const updateUser = async(req, res, next) => {

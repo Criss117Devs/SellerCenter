@@ -1,44 +1,39 @@
-import Roles from "../models/roles.js";
-import Users from "../models/users.js";
+import axios from "axios";
+import qs from "qs";
 
-const isRoleValid = async(role = "") => {
-    const userRole = await Roles.query({
-        type: Roles.types.FIND,
-        data: { role },
-    });
-    if(Object.keys(userRole).length === 0) {
-        throw new Error("El rol no esta registrado");
-    }
+
+const toBase64 = (string) => {
+    return Buffer.from(string).toString('base64');
 }
 
-const isEmailUnique = async(email = "") => {
-    const existEmail = await Users.query({
-      type: Users.types.FINDBYEMAIL,
-      data: { email },
+const existUserSalesforce = async (req, res, next) => {
+    const {
+        c_firstName,
+        c_password
+    } = req.body;
+    var data = qs.stringify({
+        'grant_type': 'client_credentials'
     });
-    if(Object.keys(existEmail).length > 0) {
-        throw new Error("El correo ya esta registrado");
-    }
-    
-}
-
-const isIdMYSQL = async(id) => {
-    if(id !== "") {
-        const existID = await Users.query({
-            type: Users.types.FIND,
-            data: { id },
+    var config = {
+        method: 'post',
+        url: 'https://account.demandware.com/dw/oauth2/access_token',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + toBase64(c_firstName + ":" + c_password)
+        },
+        data: data
+    };
+    try {
+        const resp = await axios(config);
+        res.status(201).json({
+            message: "Usuario logueado como admin",
+            data: resp.data
         });
-        if(Object.keys(existID).length === 0) {
-            throw new Error("No se encontro registro de usuario con ese ID");
-        }
-    } else {
-        throw new Error("Ingrese el ID de usuario para actualizar");
+    } catch (error) {
+        next();
     }
 }
 
-export { 
-    isRoleValid,
-    isEmailUnique,
-    isIdMYSQL,
-}
-
+export {
+    existUserSalesforce
+};

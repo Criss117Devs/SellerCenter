@@ -3,48 +3,43 @@ import { check } from 'express-validator';
 import {
     signIn,
     signUp,
-    updateUser,
+    updateUser
 } from "../controllers/users.js";
-import { 
-    isRoleValid,
-    isEmailUnique,
-    isIdMYSQL,
-} from "../helpers/dbValidations.js";
-import {
-    validateFields,
-    isUserRole,
-    validEmptyFields,
-    isAdminUser,
-} from "../middlewares/validateFields.js";
+import { existUserSalesforce } from "../helpers/dbValidations.js";
+import { validateFields } from "../middlewares/validateFields.js";
 
 const router = Router();
 
-router.post("/signUp",[
-    /*check("firstName", "El username esta vacio").not().isEmpty().trim(),
-    check("lastName", "El lastname esta vacio").not().isEmpty().trim(),
-    check("password", "El password debe tener almenos 10 caracteres").isLength({min: 10}),
-    check("password", "El password esta vacio").not().isEmpty().trim(),
-    check("email").custom(isEmailUnique), 
-    check("email", "El email no es valido").isEmail(),
-    check("email", "El email esta vacio").not().isEmpty().trim(),
-    check("status", "El status esta vacio").not().isEmpty().trim(),
-    check("role", "El rol  esta vacio").not().isEmpty().trim(),
-    check("role").custom(isRoleValid), */
-    //check("role").custom((role) => isRoleValid(role)), 
-    //check("rol", "No es un rol valida").isIn(["ADMIN_ROLE", "USER_ROLE"]),
-    //validateFields
+router.post("/signUp", [
+    check("key_value_string", "El email esta vacio").not().isEmpty().trim(),
+    check("key_value_string", "El email no es valido").isEmail(),
+    /*
+        check("c_firstName", "El username esta vacio").not().isEmpty().trim(),
+        check("c_lastName", "El lastname esta vacio").not().isEmpty().trim(),
+        check("c_password", "El password debe tener almenos 10 caracteres").isLength({min: 10}),
+        check("c_password", "El password esta vacio").not().isEmpty().trim(),
+
+        check("c_status", "El status esta vacio").not().isEmpty().trim(),
+        check("c_status", "El status tiene que ser active").equals("active"),
+        validateFields*/
 ], signUp);
 
-router.post("/signin", signIn);
+router.post("/signin", [
+    check("c_firstName", "El lastname esta vacio").not().isEmpty().trim(),
+    check("c_password", "El password debe tener almenos 10 caracteres").isLength({min: 10}),
+    existUserSalesforce,
+    validateFields
+], signIn);
 
-router.put("/updateUser/:id",[
-    isAdminUser,
+router.put("/updateUser/:id", [
+
     /*check("id").custom(isIdMYSQL), 
     check("role").custom(isRoleValid),
     isUserRole,
     validEmptyFields,
     validateFields*/
-],updateUser);
+], updateUser);
 
 
 export default router;
+// https://stackoverflow.com/questions/50592190/how-to-use-equals-in-express-validator
