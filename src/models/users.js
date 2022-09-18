@@ -14,8 +14,8 @@ const types = {
     dataOrder: ["id"],
   },
   FINDBYEMAIL: {
-    script: `SELECT * FROM ${usersTable} WHERE email = ?`,
-    dataOrder: ["email"],
+    script: `SELECT * FROM ${usersTable} WHERE key_value_string = ?`,
+    dataOrder: ["key_value_string"],
   },
   FINDBYCREDENTIALS: {
     script: `SELECT * FROM ${usersTable} WHERE key_value_string = ? OR c_firstName = ?`,
@@ -47,7 +47,15 @@ export default {
       );
       response = rows;
     } catch (err) {
-      response = { error: err };
+      console.log(err);
+      response = {
+        err: 1,
+        code: "",
+        message: "Tabla users no existe. ",
+        data: {
+          origin: ""
+        }
+      };
     }
     connection.end();
     return response;

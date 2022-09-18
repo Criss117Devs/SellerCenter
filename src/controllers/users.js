@@ -9,6 +9,37 @@ import {
   SALT_ROUNDS
 } from "../config.js";
 
+import { getToken } from "../helpers/dbValidations.js"
+
+
+
+const getUSerFromSalesforce = async (token, email) => {
+  try {
+    var data = JSON.stringify({
+      "allocation": {
+        "amount": 300
+      }
+    });
+
+    var config = {
+      method: 'get',
+      url: 'https://bjqc-002.sandbox.us01.dx.commercecloud.salesforce.com/s/Sites-Site/dw/data/v20_9/custom_objects/SellerCenterAdmins/' + email,
+      headers: {
+        'x-dw-client-id': '{{clientid}}',
+        'Authorization': 'Bearer ' + token,
+        'Origin': '{{origin_url}}',
+        'Content-Type': 'application/json'
+      },
+      data: data
+    };
+
+    const user = await axios(config);
+    return user;
+  } catch (error) {
+    return error;
+  }
+}
+
 const signUp = async (req, res, next) => {
   const {
     key_value_string,
@@ -17,125 +48,201 @@ const signUp = async (req, res, next) => {
     c_password,
     c_status
   } = req.body;
-  try {
-    // Buscar usuario en la base de datos de salesforce.
-    var data = qs.stringify({
-      'grant_type': 'client_credentials'
-    });
-    var config = {
-      method: 'post',
-      url: 'https://account.demandware.com/dw/oauth2/access_token',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + Buffer.from(c_firstName + ":" + c_password).toString('base64')
-      },
-      data: data
-    };
 
-    const userAdmin = await axios(config);
-    if (userAdmin.data.access_token) {
-      return res.json({
-        err: 1,
-        code: "",
-        message: "Este usuario ya ha sido registrado en saleforce.",
-        data: ""
-      });
-    }
-  } catch (error) {
-    // Posible error por no tener conexión con internet.
-    if (error.code === "ENOTFOUND") {
-      return res.json({
-        err: 1,
-        code: "",
-        message: error.code,
-        data: ""
-      });
-    }
-
+  const token = await getToken();
+  if (token === "ENOTFOUND") {
     /*
-    return res.status(error.response.status).json({
-      err:1,
-      code: error.response.status,
-      message: error.code,
-      data: error.response.data
-    });*/
-  }
-  // Buscar usuario en la base de datos de MYSQL.
-  // Mover amiddleware.
-  console.log("Crear----------------------------");
-  const findUser = await Users.query({
-    type: Users.types.FINDBYCREDENTIALS,
-    data: { key_value_string, c_firstName, }
-  });
-  if(findUser.length > 0)  {
+      ENOTFOUND: Possible error for not having internet.
+    */
     return res.json({
       err: 1,
       code: "",
-      message: "El campo key_value_string o el campo c_firstName ya se encuentra registrado en MYSQL",
-      data: ""
+      message: token,
+      data: {}
     });
   } else {
-
-    const hash = await bcrypt.hash(c_password, SALT_ROUNDS);
-    console.log(hash);
-    const user = await Users.query({
-      type: Users.types.CREATE,
-      data: { key_value_string, c_firstName, c_lastName, c_password: hash, c_status }
-    });
-  
-    if (user.error) {
-      return res.status(400).json({ message: user.error });
-    }
-    res.status(201).json({ message: "Usuario creado" });
-    next();
-  }
-  
-  /*
-
-  try {
-    const hash = await bcrypt.hash(c_password, SALT_ROUNDS);
-    const user = await Users.query({
-      type: Users.types.CREATE,
-      data: {
-        key_value_string,
-        c_firstName,
-        c_lastName,
-        c_password: hash,
-        c_status
-      },
-    });
     
-    console.log(key_value_string,
-      c_firstName,
-      c_lastName,
-      hash,
-      c_status);
-    if (user.error) {
-      return res.status(400).json({
-        message: user.error
-      });
+    if (token.access_token) {
+      const user = await getUSerFromSalesforce(token.access_token, key_value_string);
+      if(user.status === 200) {
+        return res.json({
+          err: 1,
+          code: "",
+          message: "Este usuario ya se encuentra registrado en salesforce",
+          data: {
+            origin: "signUp-001"
+          }
+        });
+      } else {
+        const findEmail = await Users.query({
+          type: Users.types.FINDBYEMAIL,
+          data: {
+            key_value_string
+          }
+        });
+        if (findEmail.length > 0) {
+          return res.json({
+            err: 1,
+            code: "",
+            message: "El campo key_value_string ya se encuentra registrado en MYSQL",
+            data: {}
+          });
+        } else {
+          const hash = await bcrypt.hash(c_password, SALT_ROUNDS);
+          const user = await Users.query({
+            type: Users.types.CREATE,
+            data: {
+              key_value_string,
+              c_firstName,
+              c_lastName,
+              c_password: hash,
+              c_status
+            }
+          });
+      
+          if (user.error) {
+            return res.status(400).json({
+              message: user.error
+            });
+          }
+          res.status(201).json({
+            err: 0,
+            code: "",
+            message: "Usuario creado",
+            data: {
+
+            }
+          });
+          
+        }
+      }
     } else {
-      console.log(user[0]);
-      const token = createToken(user[0]);
-      res.status(200).json({
-        token,
-        ...user[0]
+      return res.json({
+        err: 1,
+        code: "",
+        message: "ocurrió un error en el servidor",
+        data: {
+          origin: "signUp-003"
+        }
       });
-      res.status(201).json({
-        message: "Usuario creado"
-      });
-      next();
     }
-  } catch (err) {
-    next(err)
-  }*/
+  }
+
 };
 
 const signIn = async (req, res, next) => {
   const {
+    key_value_string,
     c_firstName,
     c_password
   } = req.body;
+
+  const token = await getToken();
+  if (token === "ENOTFOUND") {
+    return res.json({
+      err: 1,
+      code: "",
+      message: token,
+      data: {}
+    });
+  } else {
+    if (token.access_token) {
+      const user = await getUSerFromSalesforce(token.access_token, key_value_string);
+      if(user.status === 200) {
+        console.log("Data...");
+        console.log(user.data);
+        if(user.data.c_password === c_password) {
+          return res.json({
+            err: 0,
+            code: "",
+            message: "Iniciaste sesión como administrador de salesforce",
+            data: {
+              origin: ""
+            }
+          });
+        } else {
+          return res.json({
+            err: 1,
+            code: "",
+            message: "La contraseña no coincide con este usuario de salesforce.",
+            data: {
+              origin: ""
+            }
+          });
+        }
+        
+      } else {
+        const findUserByEmail = await Users.query({
+          type: Users.types.FINDBYEMAIL,
+          data: {
+            key_value_string
+          }
+        });
+        if (findUserByEmail.length === 0) {
+          return res.json({
+            err: 1,
+            code: "",
+            message: "No existe registro con ese correo",
+            data: {}
+          });
+        } else {
+          console.log(findUserByEmail[0].c_password);
+          const isValid = await bcrypt.compare(c_password, findUserByEmail[0].c_password);
+
+          if (!isValid) {
+            return res.json({
+              err: 1,
+              code: "",
+              message: "La contraseña no coincide con este usuario de MYSQL.",
+              data: {}
+            });
+          }
+          return res.json({
+            err: 0,
+            code: "",
+            message: "Iniciaste sesión como un usuario sin permisos de administrado",
+            data: {}
+          });
+          /*if(hash === findEmail[0].c_password) {
+            
+          } else {
+            
+          }*/
+          /*
+          console.log(hash);
+          const user = await Users.query({
+            type: Users.types.CREATE,
+            data: {
+              key_value_string,
+              c_firstName,
+              c_lastName,
+              c_password: hash,
+              c_status
+            }
+          });
+      
+          if (user.error) {
+            return res.status(400).json({
+              message: user.error
+            });
+          }
+          */
+          
+        }
+        next();
+      }
+    } else {
+      return res.json({
+        err: 1,
+        code: "",
+        message: "ocurrió un error en el servidor",
+        data: {
+          origin: "signUp-003"
+        }
+      });
+    }
+  }
+  /*
 
   const user = await Users.query({
     type: Users.types.SING_IN,
@@ -148,12 +255,14 @@ const signIn = async (req, res, next) => {
     return res
       .status(401)
       .json({
-        message: "Usuario o contraseña  incorrectos."
+        err: 1,
+        code: "",
+        message: "Usuario o contraseña  incorrectos.",
+        data: {}
       });
   }
 
-  const isValid = await bcrypt.compare(c_password, user[0].c_password);
-
+  
   if (!isValid) {
     return res
       .status(401)
@@ -167,10 +276,14 @@ const signIn = async (req, res, next) => {
     token,
     ...user[0]
   });
-  next();
+  next();*/
 };
 
 const updateUser = async (req, res, next) => {
+  console.log(req.body);
+  console.log(res.params.body);
+
+  return;
   try {
     const {
       id

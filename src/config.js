@@ -7,7 +7,7 @@ const MYSQL = {
   database: process.env.MYSQL_DATABASE || "sellercenter",
 };
 
-const JWT_SECRET = process.env.JWT_SECRET || "tokenDepruebas";
+const JWT_SECRET = process.env.JWT_SECRET || "q4f7t5g8w9g4c5t2";
 const SALT_ROUNDS = process.env.SALT_ROUNDS || 10;
 
 export { PORT, MYSQL, JWT_SECRET, SALT_ROUNDS };
