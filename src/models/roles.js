@@ -21,6 +21,7 @@ export default {
       );
       response = rows;
     } catch (err) {
+      console.log(err);
       response = { error: err };
     }
     connection.end();

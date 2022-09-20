@@ -1,11 +1,12 @@
 import express from "express";
 import { PORT } from "./src/config.js";
+import cors from "cors"
 
 //import products from "./src/routes/products.js";
 import users from "./src/routes/users.js";
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 //Adding cors
 app.use((req, res, next) => {
@@ -28,3 +29,4 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server at:  ${PORT}`);
 });
+//morgan

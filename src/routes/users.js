@@ -40,7 +40,6 @@ router.post("/signin", [
     validateFields
 ], signIn);
 
-
 router.put("/updateUser/:id", [
 ], updateUser);
 

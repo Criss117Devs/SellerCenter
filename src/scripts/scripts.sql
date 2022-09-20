@@ -12,3 +12,8 @@ CREATE TABLE users (
     c_password VARCHAR(100) NOT NULL,
     c_status VARCHAR(20) NOT NULL
 );
+
+CREATE TABLE rol (
+    id INT  AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+);
